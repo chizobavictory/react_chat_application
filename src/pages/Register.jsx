@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import Add from '../img/avatar.png'
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { auth, getStorage } from '../firebase';
+import { auth, storage } from '../firebase';
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 
 
