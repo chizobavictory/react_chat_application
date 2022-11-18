@@ -3,12 +3,15 @@ import Add from '../img/avatar.png'
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth, storage } from '../firebase';
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "../firebase";
+import { useNavigate, Link } from 'react-router-dom';
 
 
 const Register = () => {
-
-
   const [err, setErr] = useState(false);
+  const navigate = useNavigate()
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     const displayName = e.target[0].value
@@ -26,14 +29,24 @@ const Register = () => {
           setErr(true)
         },
         () => {
-          getDownloadURL(uploadTask.snapshot.ref).then( async(downloadURL) => {
-           await updateProfile(res.user,{
-            displayName, 
-            photoURL: downloadURL,
-           });
+          getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
+            await updateProfile(res.user, {
+              displayName,
+              photoURL: downloadURL,
+            });
+            await setDoc(doc(db, "users", res.user.uid), {
+              uid: res.user.uid,
+              displayName,
+              email,
+              photoURL: downloadURL,
+            })
+
+            await setDoc(doc(db, "userChats", res.user.uid), {})
+            navigate('/')
           });
         }
       );
+
     } catch (err) {
       setErr(true)
     }
@@ -58,7 +71,9 @@ const Register = () => {
           <button>Sign up</button>
           {err && <span>Something went wrong</span>}
         </form>
-        <p>Do you have an account? Login</p>
+        <p>
+          Do you have an account? <Link to="/login">Login</Link>
+        </p>
       </div>
     </div>
   )
